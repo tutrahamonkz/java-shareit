@@ -18,13 +18,9 @@ public class UserRepositoryInMemory implements UserRepository {
     public User createUser(User user) {
         checkDuplicationEmail(user.getEmail());
 
-        User newUser = User.builder()
-                .id(id)
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
-        users.put(id++, newUser);
-        return newUser;
+        user.setId(id);
+        users.put(id++, user);
+        return user;
     }
 
     @Override
@@ -48,7 +44,7 @@ public class UserRepositoryInMemory implements UserRepository {
         updateUser.setName(user.getName());
         updateUser.setEmail(email);
 
-        return users.get(id);
+        return updateUser;
     }
 
     @Override
