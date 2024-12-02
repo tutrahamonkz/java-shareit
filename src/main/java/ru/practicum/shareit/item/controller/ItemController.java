@@ -26,7 +26,7 @@ public class ItemController {
 
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId, @RequestBody ItemDto item,
-                              @RequestHeader(name = "X-Sharer-User-Id") Long ownerId){
+                              @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
         userService.getUserById(ownerId);
 
         item.setId(itemId);
