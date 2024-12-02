@@ -8,6 +8,7 @@ import ru.practicum.shareit.item.ItemMapper;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
@@ -16,16 +17,19 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
+    private final UserService userService;
 
     @Override
-    public ItemDto createItem(Item item) {
+    public ItemDto createItem(ItemDto item) {
+        userService.getUserById(item.getOwnerId());
         log.info("Создание нового предмета: {}", item);
-        return ItemMapper.toItemDto(itemRepository.createItem(item));
+        return ItemMapper.toItemDto(itemRepository.createItem(ItemMapper.toItem(item)));
     }
 
     @Override
     public List<ItemDto> getAllItemByOwnerId(Long ownerId) {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
+        userService.getUserById(ownerId);
         return itemRepository.getAllItemByOwnerId(ownerId).stream()
                 .map(ItemMapper::toItemDto)
                 .toList();
@@ -40,6 +44,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto updateItem(ItemDto item) {
         log.info("Обновление предмета по ID: {}", item.getId());
+        userService.getUserById(item.getOwnerId());
         return ItemMapper.toItemDto(itemRepository.updateItem(ItemMapper.toItemOnUpdate(item, findById(item.getId()))));
     }
 

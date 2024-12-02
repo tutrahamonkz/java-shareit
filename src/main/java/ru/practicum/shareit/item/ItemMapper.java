@@ -30,4 +30,15 @@ public class ItemMapper {
                 .requestId(item.getRequestId())
                 .build();
     }
+
+    // Преобразует объект ItemDto в объект Item.
+    public static Item toItem(ItemDto itemDto) {
+        return Item.builder()
+                .name(itemDto.getName())
+                .description(itemDto.getDescription())
+                .available(itemDto.getAvailable())
+                .ownerId(itemDto.getOwnerId())
+                .requestId(itemDto.getRequestId())
+                .build();
+    }
 }

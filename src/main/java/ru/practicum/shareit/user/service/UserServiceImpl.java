@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
@@ -16,9 +17,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto createUser(User user) {
+    public UserDto createUser(UserDto user) {
         log.info("Создание нового пользователя: {}", user);
-        return UserMapper.toUserDto(userRepository.createUser(user));
+        return UserMapper.toUserDto(userRepository.createUser(UserMapper.toUser(user)));
     }
 
     @Override
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUserById(UserDto user) {
+    public UserDto updateUserById(UpdateUserRequest user) {
         log.info("Обновление пользователя по ID: {}", user.getId());
         return UserMapper.toUserDto(userRepository
                 .updateUserById(UserMapper.toUserOnUpdate(user, findById(user.getId()))));

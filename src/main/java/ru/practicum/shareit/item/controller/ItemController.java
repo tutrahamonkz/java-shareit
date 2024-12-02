@@ -4,9 +4,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.util.List;
 
@@ -15,11 +13,9 @@ import java.util.List;
 @AllArgsConstructor
 public class ItemController {
     private final ItemService itemService;
-    private final UserService userService;
 
     @PostMapping
-    public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId, @Valid @RequestBody Item item) {
-        userService.getUserById(ownerId);
+    public ItemDto createItem(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId, @Valid @RequestBody ItemDto item) {
         item.setOwnerId(ownerId);
         return itemService.createItem(item);
     }
@@ -27,8 +23,6 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto updateItem(@PathVariable Long itemId, @RequestBody ItemDto item,
                               @RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
-        userService.getUserById(ownerId);
-
         item.setId(itemId);
         item.setOwnerId(ownerId);
 
@@ -37,7 +31,6 @@ public class ItemController {
 
     @GetMapping
     public List<ItemDto> getAllItemByOwner(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId) {
-        userService.getUserById(ownerId);
         return itemService.getAllItemByOwnerId(ownerId);
     }
 

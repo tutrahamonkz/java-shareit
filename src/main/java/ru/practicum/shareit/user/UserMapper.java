@@ -1,5 +1,6 @@
 package ru.practicum.shareit.user;
 
+import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
@@ -18,11 +19,19 @@ public class UserMapper {
 
     /* Обновляет поля объекта User на основе данных из UserDto.
        Если поля в UserDto отсутствуют, используются существующие значения из User. */
-    public static User toUserOnUpdate(UserDto userDto, User user) {
+    public static User toUserOnUpdate(UpdateUserRequest userRequest, User user) {
         return User.builder()
-                .id(userDto.getId())
-                .name(Optional.ofNullable(userDto.getName()).orElse(user.getName()))
-                .email(Optional.ofNullable(userDto.getEmail()).orElse(user.getEmail()))
+                .id(userRequest.getId())
+                .name(Optional.ofNullable(userRequest.getName()).orElse(user.getName()))
+                .email(Optional.ofNullable(userRequest.getEmail()).orElse(user.getEmail()))
+                .build();
+    }
+
+    // Преобразует объект UserDto в объект User.
+    public static User toUser(UserDto userDto) {
+        return User.builder()
+                .name(userDto.getName())
+                .email(userDto.getEmail())
                 .build();
     }
 }
