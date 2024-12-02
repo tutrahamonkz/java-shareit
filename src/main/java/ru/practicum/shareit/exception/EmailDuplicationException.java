@@ -12,4 +12,3 @@ public class EmailDuplicationException extends RuntimeException {
         log.warn(message); // Логируем сообщение об ошибке на уровне WARN
     }
 }
-
