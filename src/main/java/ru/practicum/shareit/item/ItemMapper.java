@@ -3,7 +3,10 @@ package ru.practicum.shareit.item;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.Optional;
+
 public class ItemMapper {
+    // Преобразует объект Item в объект ItemDto.
     public static ItemDto toItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
@@ -15,30 +18,16 @@ public class ItemMapper {
                 .build();
     }
 
+    // Обновляет объект Item на основе данных из ItemDto.
+    // Если поля в ItemDto отсутствуют, используются существующие значения из Item.
     public static Item toItemOnUpdate(ItemDto itemDto, Item item) {
-        String name = itemDto.getName();
-        String description = itemDto.getDescription();
-        Boolean available = itemDto.getAvailable();
-        Item updateItem = Item.builder()
+        return Item.builder()
                 .id(itemDto.getId())
+                .name(Optional.ofNullable(itemDto.getName()).orElse(item.getName()))
+                .description(Optional.ofNullable(itemDto.getDescription()).orElse(item.getDescription()))
+                .available(Optional.ofNullable(itemDto.getAvailable()).orElse(item.getAvailable()))
                 .ownerId(item.getOwnerId())
                 .requestId(item.getRequestId())
                 .build();
-        if (name != null) {
-            updateItem.setName(name);
-        } else {
-            updateItem.setName(item.getName());
-        }
-        if (description != null) {
-            updateItem.setDescription(description);
-        } else {
-            updateItem.setDescription(item.getDescription());
-        }
-        if (available != null) {
-            updateItem.setAvailable(available);
-        } else {
-            updateItem.setAvailable(item.getAvailable());
-        }
-        return updateItem;
     }
 }

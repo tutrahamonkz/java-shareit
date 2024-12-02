@@ -1,11 +1,13 @@
 package ru.practicum.shareit.item.repository;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 
 import java.util.*;
 
+@Slf4j
 @Repository
 public class ItemRepositoryInMemory implements ItemRepository {
     private final Map<Long, Item> items = new HashMap<>();
@@ -15,6 +17,7 @@ public class ItemRepositoryInMemory implements ItemRepository {
     public Item createItem(Item item) {
         item.setId(id);
         items.put(id++, item);
+        log.info("Создан новый предмет: {}", item);
         return item;
     }
 
@@ -42,6 +45,7 @@ public class ItemRepositoryInMemory implements ItemRepository {
         updateItem.setDescription(item.getDescription());
         updateItem.setAvailable(item.getAvailable());
 
+        log.info("Предмет с ID: {} успешно обновлен", id);
         return updateItem;
     }
 
@@ -52,8 +56,11 @@ public class ItemRepositoryInMemory implements ItemRepository {
         } else {
             throw new NotFoundException("Не удалось найти предмет с id: " + itemId);
         }
+        log.info("Предмет с ID: {} успешно удален", itemId);
     }
 
+    /* Ищет предметы по текстовому запросу. Поиск выполняется без учета регистра
+       и соответствует тексту в названиях и описаниях предметов. */
     @Override
     public List<Item> searchItemsByText(String text) {
         if (text.isBlank()) {
