@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,14 +24,14 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto createItem(ItemDto item) {
         userService.getUserById(item.getOwnerId());
         log.info("Создание нового предмета: {}", item);
-        return ItemMapper.toItemDto(itemRepository.createItem(ItemMapper.toItem(item)));
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItem(item)));
     }
 
     @Override
     public List<ItemDto> getAllItemByOwnerId(Long ownerId) {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
         userService.getUserById(ownerId);
-        return itemRepository.getAllItemByOwnerId(ownerId).stream()
+        return itemRepository.findByOwnerId(ownerId).stream()
                 .map(ItemMapper::toItemDto)
                 .toList();
     }
@@ -45,25 +46,28 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto updateItem(ItemDto item) {
         log.info("Обновление предмета по ID: {}", item.getId());
         userService.getUserById(item.getOwnerId());
-        return ItemMapper.toItemDto(itemRepository.updateItem(ItemMapper.toItemOnUpdate(item, findById(item.getId()))));
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItemOnUpdate(item, findById(item.getId()))));
     }
 
     @Override
     public void deleteItemByItemId(Long itemId) {
         log.info("Удаление предмета по ID: {}", itemId);
-        itemRepository.deleteItemByItemId(itemId);
+        itemRepository.deleteById(itemId);
     }
 
     @Override
     public List<ItemDto> searchItemsByText(String text) {
+        if (text.isBlank()) {
+            return new ArrayList<>();
+        }
         log.info("Поиск предметов по тексту: {}", text);
-        return itemRepository.searchItemsByText(text).stream()
+        return itemRepository.findByText(text).stream()
                 .map(ItemMapper::toItemDto)
                 .toList();
     }
 
     private Item findById(Long itemId) {
-        return itemRepository.getItemById(itemId)
+        return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + itemId));
     }
 }
