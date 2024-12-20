@@ -3,13 +3,15 @@ package ru.practicum.shareit.booking.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-import ru.practicum.shareit.booking.BookingStatus;
+import lombok.ToString;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.model.User;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Getter @Setter
 @Table(name = "bookings")
+@Getter @Setter @ToString
 public class Booking {
 
     @Id
@@ -23,11 +25,13 @@ public class Booking {
     @Column(name = "booking_end")
     private LocalDateTime end;
 
-    @Column(name = "item_id")
-    private Long item;
+    @ManyToOne()
+    @JoinColumn(name = "item_id")
+    private Item item;
 
-    @Column(name = "booker_id")
-    private Long booker;
+    @ManyToOne()
+    @JoinColumn(name = "booker_id")
+    private User booker;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status")

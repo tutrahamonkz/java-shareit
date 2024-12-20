@@ -42,6 +42,7 @@ public class ItemMapper {
     // Преобразует объект ItemDto в объект Item.
     public static Item toItem(ItemDto itemDto) {
         Item newItem = new Item();
+        newItem.setId(itemDto.getId());
         newItem.setName(itemDto.getName());
         newItem.setDescription(itemDto.getDescription());
         newItem.setAvailable(itemDto.getAvailable());

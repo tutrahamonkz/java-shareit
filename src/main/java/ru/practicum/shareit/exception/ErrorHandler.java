@@ -18,7 +18,7 @@ public class ErrorHandler {
         String[] messageArray = e.getMessage().split("default message \\[");
         // Создание объекта StringBuilder для формирования сообщения об ошибке
         StringBuilder message = new StringBuilder();
-        for (int i = 2; i < messageArray.length; i++) { // Начинаем с 2, чтобы пропустить первые два элемента
+        for (int i = 1; i < messageArray.length; i++) { // Начинаем с 1, чтобы пропустить первые два элемента
             message.append(messageArray[i].split("]")[0]); // Извлечение сообщения об ошибке
             message.append(". "); // Добавление точки после каждого сообщения
         }
@@ -40,6 +40,24 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnAvaliableException(final UnAvaliableException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleBadRequestException(final BadRequestException e) {
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleForbiddenException(final ForbiddenException e) {
         return new ErrorResponse(e.getMessage());
     }
 }
