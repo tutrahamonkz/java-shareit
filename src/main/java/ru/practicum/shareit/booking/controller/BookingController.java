@@ -40,4 +40,10 @@ public class BookingController {
                                         @RequestParam(required = false) BookingStatus status) {
         return bookingService.getBookings(userId, status);
     }
+
+    @GetMapping("/owner")
+    public List<BookingDto> getBookingByOwnerId(@RequestHeader(name = "X-Sharer-User-Id") Long ownerId,
+                                                @RequestParam(required = false) BookingStatus status) {
+        return bookingService.getBookingsByOwnerId(ownerId, status);
+    }
 }

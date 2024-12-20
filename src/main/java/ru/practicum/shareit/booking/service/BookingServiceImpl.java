@@ -85,6 +85,17 @@ public class BookingServiceImpl implements BookingService {
         return BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerIdAndStatus(userId, status));
     }
 
+    @Override
+    public List<BookingDto> getBookingsByOwnerId(Long ownerId, BookingStatus status) {
+        log.info("Получение данных о резервировании по предметам у пользователя с ID: {}", ownerId);
+        userRepository.findById(ownerId)
+                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + ownerId));
+        if (status == null) {
+            return BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerId(ownerId));
+        }
+        return BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerIdAndStatus(ownerId, status));
+    }
+
     private Booking findById(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Не найден резервирование с id: " + id));
