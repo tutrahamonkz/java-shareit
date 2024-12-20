@@ -19,6 +19,8 @@ import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
+import java.util.List;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -72,6 +74,15 @@ public class BookingServiceImpl implements BookingService {
                     "пользователь сделавший запрос на резервирование");
         }
         return BookingMapper.toBookingDto(findById(bookingId));
+    }
+
+    @Override
+    public List<BookingDto> getBookings(Long userId, BookingStatus status) {
+        log.info("Получение данных о резервировании по ID пользователя: {}", userId);
+        if (status == null) {
+            return BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerId(userId));
+        }
+        return BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerIdAndStatus(userId, status));
     }
 
     private Booking findById(Long id) {

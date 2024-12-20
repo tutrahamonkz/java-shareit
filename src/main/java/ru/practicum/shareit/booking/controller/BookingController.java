@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.booking.dto.BookingCreate;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.service.BookingService;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -30,5 +33,11 @@ public class BookingController {
     public BookingDto getBookingById(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
                                      @PathVariable Long bookingId) {
         return bookingService.getBookingById(userId, bookingId);
+    }
+
+    @GetMapping
+    public List<BookingDto> getBookings(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
+                                        @RequestParam(required = false) BookingStatus status) {
+        return bookingService.getBookings(userId, status);
     }
 }
