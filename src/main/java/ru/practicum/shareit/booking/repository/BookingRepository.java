@@ -22,4 +22,16 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "join b.item it " +
             "where it.ownerId = ?1 and b.status = ?2")
     List<Booking> findAllByItemOwnerIdAndStatus(Long ownerId, BookingStatus status);
+
+    @Query("select b from Booking b " +
+            "join b.item it " +
+            "where it.ownerId = ?1 and b.start < CURRENT_TIMESTAMP " +
+            "order by b.start desc")
+    Booking findLastBooking(Long itemId);
+
+    @Query("select b from Booking b " +
+            "join b.item it " +
+            "where it.ownerId = ?1 and b.start > CURRENT_TIMESTAMP " +
+            "order by b.start asc")
+    Booking findNextBooking(Long itemId);
 }
