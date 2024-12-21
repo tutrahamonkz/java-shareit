@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    List<Item> findByOwnerId(Long owner_id);
+    List<Item> findByOwnerId(Long ownerId);
 
     @Query("select it from Item it " +
             "where it.available = true " +

@@ -8,7 +8,9 @@ import lombok.ToString;
 @Entity
 //@Builder
 @Table(name = "users")
-@Getter @Setter @ToString
+@Getter
+@Setter
+@ToString
 public class User {
 
     @Id
