@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingCreate;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -24,7 +23,6 @@ import java.util.List;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
@@ -32,7 +30,6 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Override
-    @Transactional
     public BookingDto createBooking(BookingCreate bookingCreate, Long userId) {
         log.info("Создание нового резервирования: {}, пользователем с id: {}", bookingCreate, userId);
         User booker = userRepository.findById(userId)

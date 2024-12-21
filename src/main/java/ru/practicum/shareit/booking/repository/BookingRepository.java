@@ -34,4 +34,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "where it.ownerId = ?1 and b.start > CURRENT_TIMESTAMP " +
             "order by b.start asc")
     Booking findNextBooking(Long itemId);
+
+    @Query("select count(b) from Booking b " +
+            "where b.item.id = ?1 and b.booker.id = ?2 and b.end < CURRENT_TIMESTAMP and b.status = 'APPROVED'")
+    Integer checkHaveBooking(Long itemId, Long userId);
 }

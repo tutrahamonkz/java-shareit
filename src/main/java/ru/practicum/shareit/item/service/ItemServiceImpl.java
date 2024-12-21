@@ -5,14 +5,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
-import ru.practicum.shareit.item.ItemMapper;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoBooking;
+import ru.practicum.shareit.item.mapper.CommentMapper;
+import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.UserMapper;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.service.UserService;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +30,7 @@ public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
     private final BookingRepository bookingRepository;
+    private final CommentRepository commentRepository;
 
     @Override
     public ItemDto createItem(ItemDto item) {
@@ -32,25 +40,27 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDtoBooking> getAllItemByOwnerId(Long ownerId) {
+    public List<ItemDto> getAllItemByOwnerId(Long ownerId) {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
         userService.getUserById(ownerId);
         List<Item> items = itemRepository.findByOwnerId(ownerId);
-        List<ItemDtoBooking> dtos = new ArrayList<>();
+        List<ItemDto> dtos = new ArrayList<>();
 
         for (Item item : items) {
-            Booking lastBooking = bookingRepository.findLastBooking(item.getId());
-            Booking nextBooking = bookingRepository.findNextBooking(item.getId());
-            dtos.add(ItemMapper.toItemDtoBooking(item, lastBooking, nextBooking));
+            List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
+            dtos.add(ItemMapper.toItemDto(item, comments));
         }
 
         return dtos;
     }
 
     @Override
-    public ItemDto getItemById(Long itemId) {
+    public ItemDtoBooking getItemById(Long itemId) {
         log.info("Получение предмета по ID: {}", itemId);
-        return ItemMapper.toItemDto(findById(itemId));
+        Booking lastBooking = bookingRepository.findLastBooking(itemId);
+        Booking nextBooking = bookingRepository.findNextBooking(itemId);
+        List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
+        return ItemMapper.toItemDtoBooking(findById(itemId), lastBooking, nextBooking, comments);
     }
 
     @Override
@@ -75,6 +85,18 @@ public class ItemServiceImpl implements ItemService {
         return itemRepository.findByText(text).stream()
                 .map(ItemMapper::toItemDto)
                 .toList();
+    }
+
+    @Override
+    public CommentDto createComment(CommentDto comment, Long userId, Long itemId) {
+        if (bookingRepository.checkHaveBooking(itemId, userId) > 0) {
+            log.info("Добавление комментария к предмету: {}", itemId);
+            Item item = findById(itemId);
+            User user = UserMapper.toUser(userService.getUserById(userId));
+            comment.setCreated(LocalDateTime.now());
+            return CommentMapper.toCommentDto(commentRepository.save(CommentMapper.toComment(comment, item, user)));
+        }
+        throw new BadRequestException("Чтобы оставить комментарий пользователь должен взять предмет и вернуть его.");
     }
 
     private Item findById(Long itemId) {
