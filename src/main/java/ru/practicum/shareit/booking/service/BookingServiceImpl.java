@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
 import ru.practicum.shareit.booking.dto.BookingCreate;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -30,35 +31,28 @@ public class BookingServiceImpl implements BookingService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public BookingDto createBooking(BookingCreate bookingCreate, Long userId) {
         log.info("Создание нового резервирования: {}, пользователем с id: {}", bookingCreate, userId);
-        User booker = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + userId));
-        Item item = itemRepository.findById(bookingCreate.getItemId())
-                .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + userId));
-        if (bookingCreate.getStart().equals(bookingCreate.getEnd())) {
-            throw new BadRequestException("Дата начала бронирования не должна совпадать " +
-                    "с дадой окончания бронирования");
-        }
-        if (!item.getAvailable()) {
-            throw new UnAvaliableException("Для бронирования не доступен предмет с id: " + item.getId());
-        }
+        User booker = getUserById(userId);
+        Item item = getItemById(bookingCreate.getItemId());
+
+        validateBookingDates(bookingCreate);
+        validateItemAvailable(item);
+
         Booking booking = bookingRepository.save(BookingMapper.mapToBooking(bookingCreate, item, booker));
         return BookingMapper.toBookingDto(booking);
     }
 
     @Override
+    @Transactional
     public BookingDto acceptBooking(Long ownerId, Long bookingId, Boolean approved) {
         log.info("Подтверждение резервирования по ID: {}", bookingId);
         Booking booking = findById(bookingId);
-        if (!ownerId.equals(booking.getItem().getOwnerId())) {
-            throw new ForbiddenException("Изменять статус может только владелец предмета");
-        }
-        if (approved) {
-            booking.setStatus(BookingStatus.APPROVED);
-        } else {
-            booking.setStatus(BookingStatus.REJECTED);
-        }
+        validateOwnerAccess(ownerId, booking);
+
+        booking.setStatus(approved ? BookingStatus.APPROVED : BookingStatus.REJECTED);
+
         return BookingMapper.toBookingDto(bookingRepository.save(booking));
     }
 
@@ -66,35 +60,68 @@ public class BookingServiceImpl implements BookingService {
     public BookingDto getBookingById(Long userId, Long bookingId) {
         log.info("Получение данных о резервировании по ID: {}", bookingId);
         Booking booking = findById(bookingId);
-        if (!(userId.equals(booking.getBooker().getId()) || userId.equals(booking.getItem().getOwnerId()))) {
-            throw new ForbiddenException("Просмотреть резервирование может только владелец предмета или " +
-                    "пользователь сделавший запрос на резервирование");
-        }
-        return BookingMapper.toBookingDto(findById(bookingId));
+        validateUserAccess(userId, booking);
+
+        return BookingMapper.toBookingDto(booking);
     }
 
     @Override
     public List<BookingDto> getBookings(Long userId, BookingStatus status) {
         log.info("Получение данных о резервировании по ID пользователя: {}", userId);
-        if (status == null) {
-            return BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerId(userId));
-        }
-        return BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerIdAndStatus(userId, status));
+
+        return status == null ?
+                BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerId(userId)) :
+                BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerIdAndStatus(userId, status));
     }
 
     @Override
     public List<BookingDto> getBookingsByOwnerId(Long ownerId, BookingStatus status) {
         log.info("Получение данных о резервировании по предметам у пользователя с ID: {}", ownerId);
-        userRepository.findById(ownerId)
-                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + ownerId));
-        if (status == null) {
-            return BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerId(ownerId));
-        }
-        return BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerIdAndStatus(ownerId, status));
+        getUserById(ownerId);
+
+        return status == null ?
+                BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerId(ownerId)) :
+                BookingMapper.mapToBookingDto(bookingRepository.findAllByItemOwnerIdAndStatus(ownerId, status));
     }
 
     private Booking findById(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Не найден резервирование с id: " + id));
+    }
+
+    private User getUserById(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("Не найден пользователь с id: " + userId));
+    }
+
+    private Item getItemById(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + itemId));
+    }
+
+    private void validateBookingDates(BookingCreate bookingCreate) {
+        if (bookingCreate.getStart().equals(bookingCreate.getEnd())) {
+            throw new BadRequestException("Дата начала бронирования не должна совпадать " +
+                    "с дадой окончания бронирования");
+        }
+    }
+
+    private void validateItemAvailable(Item item) {
+        if (!item.getAvailable()) {
+            throw new UnAvaliableException("Для бронирования не доступен предмет с id: " + item.getId());
+        }
+    }
+
+    private void validateOwnerAccess(Long ownerId, Booking booking) {
+        if (!ownerId.equals(booking.getItem().getOwnerId())) {
+            throw new ForbiddenException("Изменять статус может только владелец предмета");
+        }
+    }
+
+    private void validateUserAccess(Long userId, Booking booking) {
+        if (!(userId.equals(booking.getBooker().getId()) || userId.equals(booking.getItem().getOwnerId()))) {
+            throw new ForbiddenException("Просмотреть резервирование может только владелец предмета или " +
+                    "пользователь сделавший запрос на резервирование");
+        }
     }
 }

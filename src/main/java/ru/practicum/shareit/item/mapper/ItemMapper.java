@@ -12,26 +12,27 @@ import java.util.Optional;
 public class ItemMapper {
     // Преобразует объект Item в объект ItemDto.
     public static ItemDto toItemDto(Item item) {
-        return ru.practicum.shareit.item.dto.ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .ownerId(item.getOwnerId())
-                .requestId(item.getRequestId())
-                .build();
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        itemDto.setOwnerId(item.getOwnerId());
+        itemDto.setRequestId(item.getRequestId());
+        return itemDto;
     }
 
+    // Преобразует объект Item в объект ItemDto со списком комментариев.
     public static ItemDto toItemDto(Item item, List<CommentDto> comments) {
-        return ru.practicum.shareit.item.dto.ItemDto.builder()
-                .id(item.getId())
-                .name(item.getName())
-                .description(item.getDescription())
-                .available(item.getAvailable())
-                .ownerId(item.getOwnerId())
-                .requestId(item.getRequestId())
-                .comments(comments)
-                .build();
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(item.getId());
+        itemDto.setName(item.getName());
+        itemDto.setDescription(item.getDescription());
+        itemDto.setAvailable(item.getAvailable());
+        itemDto.setOwnerId(item.getOwnerId());
+        itemDto.setRequestId(item.getRequestId());
+        itemDto.setComments(comments);
+        return itemDto;
     }
 
     // Обновляет объект Item на основе данных из ItemDto.
@@ -45,14 +46,6 @@ public class ItemMapper {
         newItem.setOwnerId(item.getOwnerId());
         newItem.setRequestId(item.getRequestId());
         return newItem;
-       /* return Item.builder()
-                .id(itemDto.getId())
-                .name(Optional.ofNullable(itemDto.getName()).orElse(item.getName()))
-                .description(Optional.ofNullable(itemDto.getDescription()).orElse(item.getDescription()))
-                .available(Optional.ofNullable(itemDto.getAvailable()).orElse(item.getAvailable()))
-                .ownerId(item.getOwnerId())
-                .requestId(item.getRequestId())
-                .build();*/
     }
 
     // Преобразует объект ItemDto в объект Item.
@@ -65,15 +58,9 @@ public class ItemMapper {
         newItem.setOwnerId(itemDto.getOwnerId());
         newItem.setRequestId(itemDto.getRequestId());
         return newItem;
-        /*return Item.builder()
-                .name(itemDto.getName())
-                .description(itemDto.getDescription())
-                .available(itemDto.getAvailable())
-                .ownerId(itemDto.getOwnerId())
-                .requestId(itemDto.getRequestId())
-                .build();*/
     }
 
+    // Преобразует объект Item в объект ItemDtoBooking с комментариями.
     public static ItemDtoBooking toItemDtoBooking(Item item, Booking lastBooking, Booking nextBooking,
                                                   List<CommentDto> comments) {
         ItemDtoBooking dto = new ItemDtoBooking();

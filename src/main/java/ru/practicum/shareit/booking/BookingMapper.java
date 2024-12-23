@@ -12,6 +12,7 @@ import java.util.List;
 
 public class BookingMapper {
 
+    // Преобразует объект BookingDto в объект Booking.
     public static Booking toBooking(BookingDto bookingDto, Item item, User booker) {
         Booking booking = new Booking();
         booking.setStart(bookingDto.getStart());
@@ -22,6 +23,7 @@ public class BookingMapper {
         return booking;
     }
 
+    // Преобразует объект Booking в объект BookingDto.
     public static BookingDto toBookingDto(Booking booking) {
         BookingDto bookingDto = new BookingDto();
         bookingDto.setId(booking.getId());
@@ -33,6 +35,7 @@ public class BookingMapper {
         return bookingDto;
     }
 
+    // Преобразует объект BookingCreate в объект Booking.
     public static Booking mapToBooking(BookingCreate bookingCreate, Item item, User booker) {
         Booking booking = new Booking();
         booking.setStart(bookingCreate.getStart());
@@ -43,6 +46,7 @@ public class BookingMapper {
         return booking;
     }
 
+    // Преобразует список объектов UserDto в список объектов User.
     public static List<BookingDto> mapToBookingDto(Iterable<Booking> bookings) {
         List<BookingDto> dtos = new ArrayList<>();
         for (Booking booking : bookings) {

@@ -32,12 +32,6 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage()); // Возвращает сообщение об ошибке из исключения
     }
 
-    @ExceptionHandler // Указывает, что этот метод будет вызываться при возникновении EmailDuplicationException
-    @ResponseStatus(HttpStatus.CONFLICT) // Устанавливает статус ответа 409 (CONFLICT)
-    public ErrorResponse handleEmailDuplicationException(final EmailDuplicationException e) {
-        return new ErrorResponse(e.getMessage()); // Возвращает сообщение об ошибке из исключения
-    }
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleMissingRequestHeaderException(final MissingRequestHeaderException e) {

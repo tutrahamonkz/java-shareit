@@ -10,11 +10,11 @@ public class UserMapper {
 
     // Преобразует объект User в объект UserDto.
     public static UserDto toUserDto(User user) {
-        return UserDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .email(user.getEmail())
-                .build();
+        UserDto userDto = new UserDto();
+        userDto.setId(user.getId());
+        userDto.setName(user.getName());
+        userDto.setEmail(user.getEmail());
+        return userDto;
     }
 
     /* Обновляет поля объекта User на основе данных из UserDto.
@@ -25,11 +25,6 @@ public class UserMapper {
         newUser.setName(Optional.ofNullable(userRequest.getName()).orElse(user.getName()));
         newUser.setEmail(Optional.ofNullable(userRequest.getEmail()).orElse(user.getEmail()));
         return newUser;
-        /*return User.builder()
-                .id(userRequest.getId())
-                .name(Optional.ofNullable(userRequest.getName()).orElse(user.getName()))
-                .email(Optional.ofNullable(userRequest.getEmail()).orElse(user.getEmail()))
-                .build();*/
     }
 
     // Преобразует объект UserDto в объект User.
@@ -39,9 +34,5 @@ public class UserMapper {
         newUser.setName(userDto.getName());
         newUser.setEmail(userDto.getEmail());
         return newUser;
-        /*return User.builder()
-                .name(userDto.getName())
-                .email(userDto.getEmail())
-                .build();*/
     }
 }

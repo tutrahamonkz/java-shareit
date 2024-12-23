@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-//@Builder
 @Table(name = "items")
 @Getter
 @Setter

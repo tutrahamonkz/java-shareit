@@ -6,7 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-//@Builder
 @Table(name = "users")
 @Getter
 @Setter
@@ -14,13 +13,13 @@ import lombok.ToString;
 public class User {
 
     @Id
-    //@Column(name = "id")
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    //@Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    //@Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 }

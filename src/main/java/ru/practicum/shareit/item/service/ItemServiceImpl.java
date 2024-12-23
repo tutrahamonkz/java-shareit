@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exception.BadRequestException;
@@ -33,6 +34,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
+    @Transactional
     public ItemDto createItem(ItemDto item) {
         userService.getUserById(item.getOwnerId());
         log.info("Создание нового предмета: {}", item);
@@ -43,34 +45,32 @@ public class ItemServiceImpl implements ItemService {
     public List<ItemDto> getAllItemByOwnerId(Long ownerId) {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
         userService.getUserById(ownerId);
-        List<Item> items = itemRepository.findByOwnerId(ownerId);
-        List<ItemDto> dtos = new ArrayList<>();
-
-        for (Item item : items) {
-            List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
-            dtos.add(ItemMapper.toItemDto(item, comments));
-        }
-
-        return dtos;
+        return itemRepository.findByOwnerId(ownerId).stream()
+                .map(this::mapToItemDtoWithComments)
+                .toList();
     }
 
     @Override
     public ItemDtoBooking getItemById(Long itemId) {
         log.info("Получение предмета по ID: {}", itemId);
+        Item item = findById(itemId);
         Booking lastBooking = bookingRepository.findLastBooking(itemId);
         Booking nextBooking = bookingRepository.findNextBooking(itemId);
         List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
-        return ItemMapper.toItemDtoBooking(findById(itemId), lastBooking, nextBooking, comments);
+        return ItemMapper.toItemDtoBooking(item, lastBooking, nextBooking, comments);
     }
 
     @Override
+    @Transactional
     public ItemDto updateItem(ItemDto item) {
         log.info("Обновление предмета по ID: {}", item.getId());
         userService.getUserById(item.getOwnerId());
-        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItemOnUpdate(item, findById(item.getId()))));
+        Item haveItem = findById(item.getId());
+        return ItemMapper.toItemDto(itemRepository.save(ItemMapper.toItemOnUpdate(item, haveItem)));
     }
 
     @Override
+    @Transactional
     public void deleteItemByItemId(Long itemId) {
         log.info("Удаление предмета по ID: {}", itemId);
         itemRepository.deleteById(itemId);
@@ -88,6 +88,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
+    @Transactional
     public CommentDto createComment(CommentDto comment, Long userId, Long itemId) {
         if (bookingRepository.checkHaveBooking(itemId, userId) > 0) {
             log.info("Добавление комментария к предмету: {}", itemId);
@@ -102,5 +103,10 @@ public class ItemServiceImpl implements ItemService {
     private Item findById(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + itemId));
+    }
+
+    private ItemDto mapToItemDtoWithComments(Item item) {
+        List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
+        return ItemMapper.toItemDto(item, comments);
     }
 }

@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CommentMapper {
+
+    // Преобразует объект CommentDto в объект Comment c использованием Item и User.
     public static Comment toComment(CommentDto commentDto, Item item, User user) {
         Comment comment = new Comment();
         comment.setText(commentDto.getText());
@@ -18,6 +20,7 @@ public class CommentMapper {
         return comment;
     }
 
+    // Преобразует объект Comment в объект CommentDto
     public static CommentDto toCommentDto(Comment comment) {
         CommentDto commentDto = new CommentDto();
         commentDto.setId(comment.getId());
@@ -28,6 +31,7 @@ public class CommentMapper {
         return commentDto;
     }
 
+    // Преобразует список объектов Comment в список объектов CommentDto.
     public static List<CommentDto> mapToCommentDto(Iterable<Comment> comments) {
         List<CommentDto> dtos = new ArrayList<>();
         for (Comment comment : comments) {
