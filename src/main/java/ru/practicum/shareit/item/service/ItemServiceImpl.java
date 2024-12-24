@@ -103,11 +103,6 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + itemId));
     }
 
-    private ItemDto mapToItemDtoWithComments(Item item) {
-        List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
-        return ItemMapper.toItemDto(item, comments);
-    }
-
     private ItemDtoBooking mapToItemDtoBooking(Item item) {
         Booking lastBooking = bookingRepository.findLastBooking(item.getId());
         Booking nextBooking = bookingRepository.findNextBooking(item.getId());

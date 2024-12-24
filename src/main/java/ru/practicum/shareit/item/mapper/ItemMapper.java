@@ -22,19 +22,6 @@ public class ItemMapper {
         return itemDto;
     }
 
-    // Преобразует объект Item в объект ItemDto со списком комментариев.
-    public static ItemDto toItemDto(Item item, List<CommentDto> comments) {
-        ItemDto itemDto = new ItemDto();
-        itemDto.setId(item.getId());
-        itemDto.setName(item.getName());
-        itemDto.setDescription(item.getDescription());
-        itemDto.setAvailable(item.getAvailable());
-        itemDto.setOwnerId(item.getOwnerId());
-        itemDto.setRequestId(item.getRequestId());
-        itemDto.setComments(comments);
-        return itemDto;
-    }
-
     // Обновляет объект Item на основе данных из ItemDto.
     // Если поля в ItemDto отсутствуют, используются существующие значения из Item.
     public static Item toItemOnUpdate(ItemDto itemDto, Item item) {
