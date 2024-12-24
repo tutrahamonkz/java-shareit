@@ -34,10 +34,12 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto createBooking(BookingCreate bookingCreate, Long userId) {
         log.info("Создание нового резервирования: {}, пользователем с id: {}", bookingCreate, userId);
+
+        validateBookingDates(bookingCreate);
+
         User booker = getUserById(userId);
         Item item = getItemById(bookingCreate.getItemId());
 
-        validateBookingDates(bookingCreate);
         validateItemAvailable(item);
 
         Booking booking = bookingRepository.save(BookingMapper.mapToBooking(bookingCreate, item, booker));
@@ -68,6 +70,8 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getBookings(Long userId, BookingStatus status) {
         log.info("Получение данных о резервировании по ID пользователя: {}", userId);
+
+        getUserById(userId);
 
         return status == null ?
                 BookingMapper.mapToBookingDto(bookingRepository.findAllByBookerId(userId)) :
@@ -102,7 +106,11 @@ public class BookingServiceImpl implements BookingService {
     private void validateBookingDates(BookingCreate bookingCreate) {
         if (bookingCreate.getStart().equals(bookingCreate.getEnd())) {
             throw new BadRequestException("Дата начала бронирования не должна совпадать " +
-                    "с дадой окончания бронирования");
+                    "с датой окончания бронирования");
+        }
+        if (bookingCreate.getStart().isAfter(bookingCreate.getEnd())) {
+            throw new BadRequestException("Дата начала бронирования не должна быть позже " +
+                    "чем дата окончания бронирования");
         }
     }
 

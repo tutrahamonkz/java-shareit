@@ -42,11 +42,12 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllItemByOwnerId(Long ownerId) {
+    public List<ItemDtoBooking> getAllItemByOwnerId(Long ownerId) {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
         userService.getUserById(ownerId);
+
         return itemRepository.findByOwnerId(ownerId).stream()
-                .map(this::mapToItemDtoWithComments)
+                .map(this::mapToItemDtoBooking)
                 .toList();
     }
 
@@ -54,10 +55,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDtoBooking getItemById(Long itemId) {
         log.info("Получение предмета по ID: {}", itemId);
         Item item = findById(itemId);
-        Booking lastBooking = bookingRepository.findLastBooking(itemId);
-        Booking nextBooking = bookingRepository.findNextBooking(itemId);
-        List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(itemId));
-        return ItemMapper.toItemDtoBooking(item, lastBooking, nextBooking, comments);
+        return mapToItemDtoBooking(item);
     }
 
     @Override
@@ -108,5 +106,12 @@ public class ItemServiceImpl implements ItemService {
     private ItemDto mapToItemDtoWithComments(Item item) {
         List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
         return ItemMapper.toItemDto(item, comments);
+    }
+
+    private ItemDtoBooking mapToItemDtoBooking(Item item) {
+        Booking lastBooking = bookingRepository.findLastBooking(item.getId());
+        Booking nextBooking = bookingRepository.findNextBooking(item.getId());
+        List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
+        return ItemMapper.toItemDtoBooking(item, lastBooking, nextBooking, comments);
     }
 }

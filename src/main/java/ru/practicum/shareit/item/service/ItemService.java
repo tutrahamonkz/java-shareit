@@ -10,7 +10,7 @@ public interface ItemService {
 
     ItemDto createItem(ItemDto item);
 
-    List<ItemDto> getAllItemByOwnerId(Long ownerId);
+    List<ItemDtoBooking> getAllItemByOwnerId(Long ownerId);
 
     ItemDtoBooking getItemById(Long itemId);
 
