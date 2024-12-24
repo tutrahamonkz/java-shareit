@@ -23,6 +23,8 @@ import ru.practicum.shareit.user.service.UserService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -46,9 +48,7 @@ public class ItemServiceImpl implements ItemService {
         log.info("Получение всех предметов по ID владельца: {}", ownerId);
         userService.getUserById(ownerId);
 
-        return itemRepository.findByOwnerId(ownerId).stream()
-                .map(this::mapToItemDtoBooking)
-                .toList();
+        return mapToItemDtoBooking(itemRepository.findByOwnerId(ownerId));
     }
 
     @Override
@@ -108,5 +108,23 @@ public class ItemServiceImpl implements ItemService {
         Booking nextBooking = bookingRepository.findNextBooking(item.getId());
         List<CommentDto> comments = CommentMapper.mapToCommentDto(commentRepository.findAllByItemId(item.getId()));
         return ItemMapper.toItemDtoBooking(item, lastBooking, nextBooking, comments);
+    }
+
+    private List<ItemDtoBooking> mapToItemDtoBooking(List<Item> items) {
+        List<Long> itemIds = items.stream()
+                .map(Item::getId)
+                .toList();
+        Map<Long, Booking> lastBookings = bookingRepository.findLastBookings(itemIds).stream()
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), booking -> booking));
+        Map<Long,Booking> nextBookings = bookingRepository.findNextBookings(itemIds).stream()
+                .collect(Collectors.toMap(booking -> booking.getItem().getId(), booking -> booking));
+        Map<Long, List<CommentDto>> comments = commentRepository.findAllByItemIds(itemIds).stream()
+                .collect(Collectors.groupingBy(comment -> comment.getItem().getId(),
+                        Collectors.mapping(CommentMapper::toCommentDto, Collectors.toList())));
+
+        return items.stream()
+                .map(item -> ItemMapper.toItemDtoBooking(item, lastBookings.get(item.getId()),
+                        nextBookings.get(item.getId()), comments.get(item.getId())))
+                .toList();
     }
 }
