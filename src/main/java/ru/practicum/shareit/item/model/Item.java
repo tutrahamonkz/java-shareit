@@ -29,6 +29,6 @@ public class Item {
     @Column(name = "owner_id")
     private Long ownerId;
 
-    @Column(name = "request_id")
+    @JoinColumn(name = "request_id")
     private Long requestId;
 }
