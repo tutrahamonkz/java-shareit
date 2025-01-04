@@ -42,8 +42,8 @@ public class ItemRequestServiceImpl implements ItemRequestService {
                         Collectors.mapping(ItemMapper::toItemDtoForRequest, Collectors.toList())));
 
         return itemRequests.stream()
-                .map(itemRequest -> ItemRequestMapper.
-                        toItemRequestDtoWithItems(itemRequest, items.get(itemRequest.getId())))
+                .map(itemRequest -> ItemRequestMapper
+                        .toItemRequestDtoWithItems(itemRequest, items.get(itemRequest.getId())))
                 .toList();
     }
 
