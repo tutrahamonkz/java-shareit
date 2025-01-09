@@ -14,6 +14,7 @@ public class UserRequestDto {
 
     @NotBlank(groups = CreateValidationGroup.class)
     private String name;
+
     @NotBlank(groups = CreateValidationGroup.class)
     @Email(groups = CreateValidationGroup.class)
     private String email;

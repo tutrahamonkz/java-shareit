@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import ru.practicum.shareit.validation.CreateValidationGroup;
-
-import java.time.LocalDateTime;
 
 @Getter
 @ToString
@@ -15,8 +12,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ItemRequestRequestDto {
 
-    @NotBlank(groups = CreateValidationGroup.class)
+    @NotBlank
     private String description;
-    private Long requestor;
-    private LocalDateTime created;
 }

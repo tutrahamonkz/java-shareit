@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -7,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.request.dto.ItemRequestRequestDto;
-import ru.practicum.shareit.validation.CreateValidationGroup;
 
 @Controller
 @RequestMapping(path = "/requests")
@@ -19,9 +19,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> createItemRequest(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                    @RequestBody
-                                                    @Validated(CreateValidationGroup.class)
-                                                    ItemRequestRequestDto requestDto) {
+                                                    @RequestBody @Valid ItemRequestRequestDto requestDto) {
         log.info("Creating new item request {}", requestDto);
         return itemRequestClient.createItemRequest(userId, requestDto);
     }

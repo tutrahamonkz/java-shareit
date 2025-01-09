@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,7 @@ public class ItemController {
 
     @GetMapping("/search")
     public ResponseEntity<Object> searchItemsByText(@RequestHeader(name = "X-Sharer-User-Id") Long userId,
-                                                    @RequestParam String text) {
+                                                    @RequestParam @NotBlank String text) {
         log.info("Retrieving all items by text: {}", text);
         return itemClient.searchItemsByText(userId, text);
     }
