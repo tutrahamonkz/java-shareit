@@ -1,14 +1,20 @@
 package ru.practicum.shareit.item.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @JsonTest
@@ -16,6 +22,15 @@ class CommentRequestDtoTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private Validator validator;
+
+    @BeforeEach
+    void setUp() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
+    }
 
     @Test
     void testSerialization() throws Exception {
@@ -38,20 +53,18 @@ class CommentRequestDtoTest {
     @Test
     void testValidation() {
         CommentRequestDto dto = new CommentRequestDto("This is a comment");
-        assertThat(dto.getText()).isNotBlank();
+
+        Set<ConstraintViolation<CommentRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    void testValidationFailure() {
+    void testValidationFailureText() {
         CommentRequestDto dto = new CommentRequestDto("");
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> validateText(dto));
-        assertThat(exception.getMessage()).isEqualTo("Text should not be blank");
-    }
-
-    private void validateText(CommentRequestDto dto) {
-        if (dto.getText() == null || dto.getText().isBlank()) {
-            throw new IllegalArgumentException("Text should not be blank");
-        }
+        Set<ConstraintViolation<CommentRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isNotEmpty();
+        assertThat(violations).anyMatch(violation -> violation.getPropertyPath()
+                .toString().equals("text"));
     }
 }

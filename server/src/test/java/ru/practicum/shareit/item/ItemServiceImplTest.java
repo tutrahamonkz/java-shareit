@@ -45,13 +45,12 @@ class ItemServiceImplTest {
     private User user;
     private Item item;
     private ItemDto itemDto;
-    private Booking booking;
     private CommentDto commentDto;
 
     @BeforeEach
     void setUp() {
         // Создание и сохранение пользователя
-        user = new User(null, "John Doe", "john.doe@example.com");
+        user = new User(null, "User name", "user.email@test.com");
         user = userRepository.save(user);
 
         // Создание и сохранение предмета
@@ -63,7 +62,7 @@ class ItemServiceImplTest {
         commentDto = new CommentDto(null, "Comment text", null, user.getName(), null);
 
         // Создание бронирования для тестов
-        booking = new Booking(null, LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1),
+        Booking booking = new Booking(null, LocalDateTime.now().minusDays(2), LocalDateTime.now().minusDays(1),
                 item, user, BookingStatus.APPROVED);
         booking = bookingRepository.save(booking);
     }

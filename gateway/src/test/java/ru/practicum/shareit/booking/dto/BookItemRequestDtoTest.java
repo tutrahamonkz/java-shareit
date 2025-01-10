@@ -1,6 +1,11 @@
 package ru.practicum.shareit.booking.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,9 +13,9 @@ import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @JsonTest
@@ -19,9 +24,19 @@ class BookItemRequestDtoTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private Validator validator;
+
+    @BeforeEach
+    void setUp() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
+    }
+
     @Test
     void testSerialization() throws Exception {
-        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
+        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2));
 
         String json = objectMapper.writeValueAsString(dto);
 
@@ -32,7 +47,8 @@ class BookItemRequestDtoTest {
 
     @Test
     void testDeserialization() throws Exception {
-        String json = "{\"itemId\":1,\"start\":\"" + LocalDateTime.now().plusDays(1).toString() + "\",\"end\":\"" + LocalDateTime.now().plusDays(2).toString() + "\"}";
+        String json = "{\"itemId\":1,\"start\":\"" + LocalDateTime.now().plusDays(1) +
+                "\",\"end\":\"" + LocalDateTime.now().plusDays(2) + "\"}";
 
         BookItemRequestDto dto = objectMapper.readValue(json, BookItemRequestDto.class);
 
@@ -42,41 +58,33 @@ class BookItemRequestDtoTest {
     }
 
     @Test
-    void testValidDates() {
-        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
-        assertThat(dto.getStart()).isBefore(dto.getEnd());
+    void testValidation() {
+        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().plusDays(2));
+
+        Set<ConstraintViolation<BookItemRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    void testInvalidStartDate() {
-        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().minusDays(1), LocalDateTime.now().plusDays(2));
-        assertThrows(IllegalArgumentException.class, () -> validateDates(dto));
+    void testValidationFailureStart() {
+        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().minusDays(1),
+                LocalDateTime.now().plusDays(2));
+
+        Set<ConstraintViolation<BookItemRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isNotEmpty();
+        assertThat(violations).anyMatch(violation -> violation.getPropertyPath()
+                .toString().equals("start"));
     }
 
     @Test
-    void testInvalidEndDate() {
-        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().minusDays(2));
-        assertThrows(IllegalArgumentException.class, () -> validateDates(dto));
-    }
+    void testValidationFailureEnd() {
+        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1),
+                LocalDateTime.now().minusDays(1));
 
-    @Test
-    void testSameStartAndEndDate() {
-        BookItemRequestDto dto = new BookItemRequestDto(1L, LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(1));
-        assertThrows(IllegalArgumentException.class, () -> validateDates(dto));
-    }
-
-    private void validateDates(BookItemRequestDto dto) {
-        if (dto.getStart().isEqual(dto.getEnd())) {
-            throw new IllegalArgumentException("Start date should not be equal to end date");
-        }
-        if (dto.getStart().isAfter(dto.getEnd())) {
-            throw new IllegalArgumentException("Start date should not be after end date");
-        }
-        if (dto.getStart().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("Start date should not be in the past");
-        }
-        if (dto.getEnd().isBefore(LocalDateTime.now())) {
-            throw new IllegalArgumentException("End date should not be in the past");
-        }
+        Set<ConstraintViolation<BookItemRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isNotEmpty();
+        assertThat(violations).anyMatch(violation -> violation.getPropertyPath()
+                .toString().equals("end"));
     }
 }

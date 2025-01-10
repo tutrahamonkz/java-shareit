@@ -42,18 +42,17 @@ class BookingServiceImplTest {
     private ItemRepository itemRepository;
 
     private User user;
-    private Item item;
     private Booking booking;
     private BookingCreate bookingCreate;
 
     @BeforeEach
     void setUp() {
         // Создание и сохранение пользователя
-        user = new User(null, "John Doe", "john.doe@example.com");
+        user = new User(null, "User name", "user.email@test.com");
         user = userRepository.save(user);
 
         // Создание и сохранение предмета
-        item = new Item(null, "Item Name", "Item Description", true, user.getId(), null);
+        Item item = new Item(null, "Item Name", "Item Description", true, user.getId(), null);
         item = itemRepository.save(item);
 
         // Создание DTO для тестов

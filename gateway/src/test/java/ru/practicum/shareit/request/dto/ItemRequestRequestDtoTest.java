@@ -1,14 +1,20 @@
 package ru.practicum.shareit.request.dto;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Set;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(SpringExtension.class)
 @JsonTest
@@ -16,6 +22,15 @@ class ItemRequestRequestDtoTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    private Validator validator;
+
+    @BeforeEach
+    void setUp() {
+        try (ValidatorFactory factory = Validation.buildDefaultValidatorFactory()) {
+            validator = factory.getValidator();
+        }
+    }
 
     @Test
     void testSerialization() throws Exception {
@@ -38,20 +53,18 @@ class ItemRequestRequestDtoTest {
     @Test
     void testValidation() {
         ItemRequestRequestDto dto = new ItemRequestRequestDto("This is a description");
-        assertThat(dto.getDescription()).isNotBlank();
+
+        Set<ConstraintViolation<ItemRequestRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isEmpty();
     }
 
     @Test
-    void testValidationFailure() {
+    void testValidationFailureDescription() {
         ItemRequestRequestDto dto = new ItemRequestRequestDto("");
 
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> validateDescription(dto));
-        assertThat(exception.getMessage()).isEqualTo("Description should not be blank");
-    }
-
-    private void validateDescription(ItemRequestRequestDto dto) {
-        if (dto.getDescription() == null || dto.getDescription().isBlank()) {
-            throw new IllegalArgumentException("Description should not be blank");
-        }
+        Set<ConstraintViolation<ItemRequestRequestDto>> violations = validator.validate(dto);
+        assertThat(violations).isNotEmpty();
+        assertThat(violations).anyMatch(violation -> violation.getPropertyPath()
+                .toString().equals("description"));
     }
 }

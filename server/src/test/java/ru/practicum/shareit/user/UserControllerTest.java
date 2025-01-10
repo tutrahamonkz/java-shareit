@@ -38,9 +38,9 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userDto = new UserDto(1L, "John Doe", "john.doe@example.com");
-        updateUserRequest = new UpdateUserRequest(null, "john.doe.updated@example.com",
-                "", "John Doe Updated", null);
+        userDto = new UserDto(1L, "User name", "user.email@test.com");
+        updateUserRequest = new UpdateUserRequest(null, "user.email.updated@test.com",
+                "", "User name Updated", null);
     }
 
     @Test

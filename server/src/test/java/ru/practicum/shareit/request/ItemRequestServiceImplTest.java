@@ -41,7 +41,7 @@ class ItemRequestServiceImplTest {
     @BeforeEach
     void setUp() {
         // Создание и сохранение пользователя
-        user = new User(null, "John Doe", "john.doe@example.com");
+        user = new User(null, "User name", "user.email@test.com");
         user = userRepository.save(user);
 
         // Используем ID сохраненного пользователя
@@ -64,7 +64,7 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDtoWithItems> requests = itemRequestService.getMyItemRequests(user.getId());
         assertNotNull(requests);
         assertFalse(requests.isEmpty());
-        assertEquals(itemRequest.getDescription(), requests.get(0).getDescription());
+        assertEquals(itemRequest.getDescription(), requests.getFirst().getDescription());
     }
 
     @Test
@@ -73,7 +73,7 @@ class ItemRequestServiceImplTest {
         List<ItemRequestDto> requests = itemRequestService.getAllOtherItemRequests(2L);
         assertNotNull(requests);
         assertFalse(requests.isEmpty());
-        assertEquals(itemRequest.getDescription(), requests.get(0).getDescription());
+        assertEquals(itemRequest.getDescription(), requests.getFirst().getDescription());
     }
 
     @Test

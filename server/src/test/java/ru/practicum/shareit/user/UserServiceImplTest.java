@@ -31,9 +31,9 @@ class UserServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        userDto = new UserDto(null, "John Doe", "john.doe@example.com");
-        updateUserRequest = new UpdateUserRequest(null, "john.updated@example.com", "",
-                "John Updated", null);
+        userDto = new UserDto(null, "User name", "user.email@test.com");
+        updateUserRequest = new UpdateUserRequest(null, "user.email.updated@test.com", "",
+                "User name Updated", null);
     }
 
     @Test
