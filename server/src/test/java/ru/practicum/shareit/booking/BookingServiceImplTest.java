@@ -117,7 +117,7 @@ class BookingServiceImplTest {
         anotherUser = userRepository.save(anotherUser);
         Long ownerId = anotherUser.getId();
         Long bookingId = booking.getId();
-        assertThrows(ForbiddenException.class, () -> bookingService.acceptBooking(ownerId, bookingId, true) );
+        assertThrows(ForbiddenException.class, () -> bookingService.acceptBooking(ownerId, bookingId, true));
     }
 
     @Test
@@ -128,5 +128,6 @@ class BookingServiceImplTest {
         BookingCreate unavailableBookingCreate = new BookingCreate(unavailableItem.getId(),
                 LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
         assertThrows(UnAvaliableException.class, () -> bookingService
-                .createBooking(unavailableBookingCreate, user.getId()) ); }
+                .createBooking(unavailableBookingCreate, user.getId()));
+    }
 }

@@ -128,5 +128,6 @@ class ItemServiceImplTest {
         Long invalidUserId = 999L;
         CommentDto invalidCommentDto = new CommentDto(null, "Invalid Comment", null, "Invalid User", null);
         assertThrows(BadRequestException.class, () -> itemService
-                .createComment(invalidCommentDto, invalidUserId, item.getId()) ); }
+                .createComment(invalidCommentDto, invalidUserId, item.getId()));
+    }
 }
