@@ -61,6 +61,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingDto getBookingById(Long userId, Long bookingId) {
         log.info("Получение данных о резервировании по ID: {}", bookingId);
+
+        getUserById(userId);
+
         Booking booking = findById(bookingId);
         validateUserAccess(userId, booking);
 

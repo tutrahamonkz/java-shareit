@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
+import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -121,4 +122,11 @@ class ItemServiceImplTest {
         assertNotNull(createdComment.getId());
         assertEquals(commentDto.getText(), createdComment.getText());
     }
+
+    @Test
+    void createComment_ShouldThrowBadRequestException_WhenNoBooking() {
+        Long invalidUserId = 999L;
+        CommentDto invalidCommentDto = new CommentDto(null, "Invalid Comment", null, "Invalid User", null);
+        assertThrows(BadRequestException.class, () -> itemService
+                .createComment(invalidCommentDto, invalidUserId, item.getId()) ); }
 }

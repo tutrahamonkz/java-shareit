@@ -13,7 +13,9 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
+import ru.practicum.shareit.exception.UnAvaliableException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.model.User;
@@ -108,4 +110,23 @@ class BookingServiceImplTest {
     void getBookingByIdNotFound() {
         assertThrows(NotFoundException.class, () -> bookingService.getBookingById(user.getId(), 999L));
     }
+
+    @Test
+    void acceptBooking_ShouldThrowForbiddenException_WhenNotOwner() {
+        User anotherUser = new User(null, "Another User", "another.user@test.com");
+        anotherUser = userRepository.save(anotherUser);
+        Long ownerId = anotherUser.getId();
+        Long bookingId = booking.getId();
+        assertThrows(ForbiddenException.class, () -> bookingService.acceptBooking(ownerId, bookingId, true) );
+    }
+
+    @Test
+    void createBooking_ShouldThrowUnAvaliableException_WhenItemNotAvailable() {
+        Item unavailableItem = new Item(null, "Unavailable Item", "Item Description",
+                false, user.getId(), null);
+        unavailableItem = itemRepository.save(unavailableItem);
+        BookingCreate unavailableBookingCreate = new BookingCreate(unavailableItem.getId(),
+                LocalDateTime.now().plusDays(1), LocalDateTime.now().plusDays(2));
+        assertThrows(UnAvaliableException.class, () -> bookingService
+                .createBooking(unavailableBookingCreate, user.getId()) ); }
 }
