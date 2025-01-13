@@ -40,8 +40,8 @@ public class ItemController {
         return itemService.getItemById(itemId);
     }
 
-    @GetMapping("/search/{text}")
-    public List<ItemDto> searchItemsByText(@PathVariable String text) {
+    @GetMapping("/search")
+    public List<ItemDto> searchItemsByText(@RequestParam String text) {
         return itemService.searchItemsByText(text);
     }
 
