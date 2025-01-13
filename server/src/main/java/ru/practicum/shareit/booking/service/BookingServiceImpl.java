@@ -10,7 +10,6 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.exception.BadRequestException;
 import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.UnAvaliableException;
@@ -34,8 +33,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDto createBooking(BookingCreate bookingCreate, Long userId) {
         log.info("Создание нового резервирования: {}, пользователем с id: {}", bookingCreate, userId);
-
-        validateBookingDates(bookingCreate);
 
         User booker = getUserById(userId);
         Item item = getItemById(bookingCreate.getItemId());
@@ -104,17 +101,6 @@ public class BookingServiceImpl implements BookingService {
     private Item getItemById(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException("Не найден предмет с id: " + itemId));
-    }
-
-    private void validateBookingDates(BookingCreate bookingCreate) {
-        if (bookingCreate.getStart().equals(bookingCreate.getEnd())) {
-            throw new BadRequestException("Дата начала бронирования не должна совпадать " +
-                    "с датой окончания бронирования");
-        }
-        if (bookingCreate.getStart().isAfter(bookingCreate.getEnd())) {
-            throw new BadRequestException("Дата начала бронирования не должна быть позже " +
-                    "чем дата окончания бронирования");
-        }
     }
 
     private void validateItemAvailable(Item item) {

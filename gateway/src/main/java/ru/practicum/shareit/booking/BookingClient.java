@@ -10,6 +10,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.booking.dto.BookItemRequestDto;
 import ru.practicum.shareit.booking.dto.BookingState;
 import ru.practicum.shareit.client.BaseClient;
+import ru.practicum.shareit.exception.BadRequestException;
 
 import java.util.Map;
 
@@ -28,6 +29,9 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> bookItem(long userId, BookItemRequestDto requestDto) {
+
+        validateBookingDates(requestDto);
+
         return post("", userId, requestDto);
     }
 
@@ -56,5 +60,16 @@ public class BookingClient extends BaseClient {
                 "status", state.name()
         );
         return get("/owner/?status={status}", userId, parameters);
+    }
+
+    private void validateBookingDates(BookItemRequestDto requestDto) {
+        if (requestDto.getStart().equals(requestDto.getEnd())) {
+            throw new BadRequestException("Дата начала бронирования не должна совпадать " +
+                    "с датой окончания бронирования");
+        }
+        if (requestDto.getStart().isAfter(requestDto.getEnd())) {
+            throw new BadRequestException("Дата начала бронирования не должна быть позже " +
+                    "чем дата окончания бронирования");
+        }
     }
 }
