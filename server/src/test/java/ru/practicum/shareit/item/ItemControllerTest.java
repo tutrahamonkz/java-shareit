@@ -98,7 +98,7 @@ class ItemControllerTest {
     void searchItemsByText() throws Exception {
         List<ItemDto> items = List.of(itemDto);
         when(itemService.searchItemsByText("text")).thenReturn(items);
-        mockMvc.perform(get("/items/search/text")
+        mockMvc.perform(get("/items/search?text=text")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(items)));
